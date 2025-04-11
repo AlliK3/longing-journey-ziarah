@@ -10,22 +10,22 @@ const guides = [
   {
     name: "Sayyed Husain Murtatha Alqsweni",
     role: "Scholar",
-    image: "/guide-placeholder.jpg"
+    image: "/Mustapha.jpg"
   },
   {
     name: "Mula Ammar Alkinani",
     role: "Historical Expert",
-    image: "/guide-placeholder.jpg"
+    image: "/Ammar.jpg"
   },
   {
     name: "Mula Qahtan Albudairi",
     role: "Scholar",
-    image: "/guide-placeholder.jpg"
+    image: "/Qahtan.jpg"
   },
   {
     name: "Mula Mahmud Asiri",
     role: "Cultural Guide",
-    image: "/guide-placeholder.jpg"
+    image: "/Mahmud.jpg"
   },
   {
     name: "Mula Sayyed Muntazar",
