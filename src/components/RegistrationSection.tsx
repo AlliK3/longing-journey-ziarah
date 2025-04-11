@@ -4,13 +4,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2, Download } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import * as XLSX from 'xlsx';
 
 const RegistrationSection = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [registrations, setRegistrations] = useState<any[]>([]);
   
   // Google Sheet webhook URL - hidden from public view
@@ -35,14 +34,13 @@ const RegistrationSection = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const exportToExcel = () => {
-    setIsExporting(true);
+  const autoExportToExcel = (allRegistrations: any[]) => {
     try {
       // Create a new workbook
       const wb = XLSX.utils.book_new();
       
-      // Create a new worksheet with the registrations data
-      const ws = XLSX.utils.json_to_sheet(registrations.length > 0 ? registrations : [formData]);
+      // Create a new worksheet with all registrations data
+      const ws = XLSX.utils.json_to_sheet(allRegistrations);
       
       // Add the worksheet to the workbook
       XLSX.utils.book_append_sheet(wb, ws, "Registrations");
@@ -50,19 +48,9 @@ const RegistrationSection = () => {
       // Generate the Excel file
       XLSX.writeFile(wb, "longing-journey-registrations.xlsx");
       
-      toast({
-        title: "Export Successful",
-        description: "Registrations exported to Excel successfully!",
-      });
+      console.log("Registrations automatically exported to Excel file");
     } catch (error) {
-      console.error("Error exporting to Excel:", error);
-      toast({
-        title: "Export Failed",
-        description: "Failed to export registrations to Excel.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsExporting(false);
+      console.error("Error auto-exporting to Excel:", error);
     }
   };
 
@@ -77,7 +65,10 @@ const RegistrationSection = () => {
         ...formData,
         timestamp: new Date().toISOString()
       };
-      setRegistrations(prev => [...prev, newRegistration]);
+      
+      // Update registrations state with the new registration
+      const updatedRegistrations = [...registrations, newRegistration];
+      setRegistrations(updatedRegistrations);
       
       // Send data to Google Sheet
       await fetch(googleSheetWebhookUrl, {
@@ -90,6 +81,9 @@ const RegistrationSection = () => {
       });
       
       console.log("Data sent to Google Sheet");
+      
+      // Auto export all registrations including the new one
+      autoExportToExcel(updatedRegistrations);
       
       // Show success message
       toast({
@@ -123,9 +117,6 @@ const RegistrationSection = () => {
     }
   };
 
-  // Admin mode - only visible when URL has ?admin=true
-  const isAdminMode = new URLSearchParams(window.location.search).get('admin') === 'true';
-
   return (
     <section id="register" className="py-16 md:py-24 bg-muted">
       <div className="container mx-auto px-4">
@@ -145,35 +136,6 @@ const RegistrationSection = () => {
         </p>
         
         <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
-          {isAdminMode && (
-            <div className="mb-8 p-4 border border-dashed border-muted-foreground rounded-md">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-sm font-semibold">Admin Controls</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={exportToExcel}
-                  disabled={isExporting}
-                >
-                  {isExporting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Exporting...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="mr-2 h-4 w-4" />
-                      Export to Excel
-                    </>
-                  )}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                All registrations are automatically saved to your Google Sheet. You can also download the current data as an Excel file.
-              </p>
-            </div>
-          )}
-          
           <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
             <div className="form-group">
               <label htmlFor="firstName">First Name (Required)</label>
