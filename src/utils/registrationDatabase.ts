@@ -1,7 +1,4 @@
 
-import fs from 'fs';
-import path from 'path';
-
 // Define the registration data structure
 export interface Registration {
   firstName: string;
@@ -18,31 +15,14 @@ export interface Registration {
   timestamp: string;
 }
 
-// Path to the database file
-const DB_FILE_PATH = path.join(process.cwd(), 'data', 'registrations.json');
-
-// Ensure the data directory exists
-const ensureDirectoryExists = () => {
-  const dir = path.dirname(DB_FILE_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-};
-
-// Initialize the database file if it doesn't exist
-const initDatabaseFile = () => {
-  ensureDirectoryExists();
-  if (!fs.existsSync(DB_FILE_PATH)) {
-    fs.writeFileSync(DB_FILE_PATH, JSON.stringify([], null, 2));
-  }
-};
-
 // Get all registrations
-export const getAllRegistrations = (): Registration[] => {
+export const getAllRegistrations = async (): Promise<Registration[]> => {
   try {
-    initDatabaseFile();
-    const data = fs.readFileSync(DB_FILE_PATH, 'utf8');
-    return JSON.parse(data);
+    const response = await fetch('/api/registrations');
+    if (!response.ok) {
+      throw new Error('Failed to fetch registrations');
+    }
+    return await response.json();
   } catch (error) {
     console.error('Error reading registrations database:', error);
     return [];
@@ -50,16 +30,24 @@ export const getAllRegistrations = (): Registration[] => {
 };
 
 // Save a new registration
-export const saveRegistration = (registration: Registration): boolean => {
+export const saveRegistration = async (registration: Registration): Promise<boolean> => {
   try {
-    const registrations = getAllRegistrations();
-    registrations.push(registration);
-    ensureDirectoryExists();
-    fs.writeFileSync(DB_FILE_PATH, JSON.stringify(registrations, null, 2));
-    return true;
+    const response = await fetch('/api/registrations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(registration),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to save registration');
+    }
+    
+    const result = await response.json();
+    return result.success;
   } catch (error) {
     console.error('Error saving registration:', error);
     return false;
   }
 };
-

@@ -1,6 +1,6 @@
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Path to the database file
 const DB_FILE_PATH = path.join(process.cwd(), 'data', 'registrations.json');
@@ -22,7 +22,7 @@ const initDatabaseFile = () => {
 };
 
 // Registration storage plugin for Vite
-module.exports = function registrationStoragePlugin() {
+function registrationStoragePlugin() {
   return {
     name: 'vite-plugin-registration-storage',
     configureServer(server) {
@@ -81,4 +81,6 @@ module.exports = function registrationStoragePlugin() {
       });
     }
   };
-};
+}
+
+export default registrationStoragePlugin;

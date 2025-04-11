@@ -1,8 +1,8 @@
 
-// Server-side API for handling registration data
+// Client-side API for handling registration data
 import { Registration, saveRegistration, getAllRegistrations } from '../utils/registrationDatabase';
 
-// Create an API route to handle registration submission
+// Handle registration submission - now client-side compatible
 export async function handleRegistrationSubmission(registrationData: Registration): Promise<{ success: boolean; message: string }> {
   try {
     // Add timestamp if not provided
@@ -10,8 +10,8 @@ export async function handleRegistrationSubmission(registrationData: Registratio
       registrationData.timestamp = new Date().toISOString();
     }
 
-    // Save to our local database file
-    const saved = saveRegistration(registrationData);
+    // Save via the registrationDatabase API which will make the fetch request
+    const saved = await saveRegistration(registrationData);
     
     if (!saved) {
       throw new Error('Failed to save registration');
@@ -30,8 +30,7 @@ export async function handleRegistrationSubmission(registrationData: Registratio
   }
 }
 
-// Function to retrieve all registrations
+// Function to retrieve all registrations - now client-side compatible
 export async function getRegistrations(): Promise<Registration[]> {
-  return getAllRegistrations();
+  return await getAllRegistrations();
 }
-
