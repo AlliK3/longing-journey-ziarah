@@ -4,7 +4,7 @@ import React from 'react';
 const guides = [
   {
     name: "Sayyid Mustapha Al-Modarresi",
-    role: "Spiritual Guide",
+    role: "Scholar",
     image: "/guide-placeholder.jpg"
   },
   {
@@ -14,17 +14,17 @@ const guides = [
   },
   {
     name: "Mula Ammar Alkinani",
-    role: "Historical Expert",
+    role: "Reciter",
     image: "/Ammar.jpg"
   },
   {
     name: "Mula Qahtan Albudairi",
-    role: "Scholar",
+    role: "Reciter",
     image: "/Qahtan.jpg"
   },
   {
     name: "Mula Mahmud Asiri",
-    role: "Cultural Guide",
+    role: "Reciter",
     image: "/Mahmud.jpg"
   },
   {
