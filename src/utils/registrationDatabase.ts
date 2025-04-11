@@ -39,13 +39,19 @@ export const saveRegistration = async (registration: Registration): Promise<bool
       },
       body: JSON.stringify(registration),
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to save registration');
+      throw new Error(`Failed to save registration (status: ${response.status})`);
     }
-    
-    const result = await response.json();
-    return result.success;
+
+    // Attempt to read JSON response, fallback to true if no structured response
+    try {
+      const result = await response.json();
+      return result?.success ?? true;
+    } catch (parseError) {
+      // If the server doesn't return JSON, assume success if status was OK
+      return true;
+    }
   } catch (error) {
     console.error('Error saving registration:', error);
     return false;
