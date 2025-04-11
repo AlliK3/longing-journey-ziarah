@@ -1,21 +1,32 @@
-
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import * as XLSX from 'xlsx';
+import { handleRegistrationSubmission } from "@/server/api";
+
+interface RegistrationFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  age: string;
+  education: string;
+  nationality: string;
+  country: string;
+  city: string;
+  comments: string;
+  hearAbout: string;
+}
 
 const RegistrationSection = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [registrations, setRegistrations] = useState<any[]>([]);
   
-  // Google Sheet webhook URL - hidden from public view
   const googleSheetWebhookUrl = "https://sheet.best/api/sheets/1bS26QPZsea7F6THkVKoFdEMKBl_nWlh-hIgRSSIaVqU";
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegistrationFormData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -34,64 +45,44 @@ const RegistrationSection = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const autoExportToExcel = (allRegistrations: any[]) => {
-    try {
-      // Create a new workbook
-      const wb = XLSX.utils.book_new();
-      
-      // Create a new worksheet with all registrations data
-      const ws = XLSX.utils.json_to_sheet(allRegistrations);
-      
-      // Add the worksheet to the workbook
-      XLSX.utils.book_append_sheet(wb, ws, "Registrations");
-      
-      // Generate the Excel file
-      XLSX.writeFile(wb, "longing-journey-registrations.xlsx");
-      
-      console.log("Registrations automatically exported to Excel file");
-    } catch (error) {
-      console.error("Error auto-exporting to Excel:", error);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     console.log('Form submitted:', formData);
     
     try {
-      // Add the registration to our local array
       const newRegistration = {
         ...formData,
         timestamp: new Date().toISOString()
       };
       
-      // Update registrations state with the new registration
-      const updatedRegistrations = [...registrations, newRegistration];
-      setRegistrations(updatedRegistrations);
+      const result = await handleRegistrationSubmission(newRegistration);
       
-      // Send data to Google Sheet
-      await fetch(googleSheetWebhookUrl, {
-        method: 'POST',
-        mode: 'no-cors', // Required for cross-origin requests
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newRegistration),
-      });
+      if (!result.success) {
+        throw new Error(result.message);
+      }
       
-      console.log("Data sent to Google Sheet");
+      console.log("Registration saved to local database");
       
-      // Auto export all registrations including the new one
-      autoExportToExcel(updatedRegistrations);
+      try {
+        await fetch(googleSheetWebhookUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newRegistration),
+        });
+        console.log("Data also sent to Google Sheet");
+      } catch (err) {
+        console.error("Failed to send to Google Sheet, but local save succeeded:", err);
+      }
       
-      // Show success message
       toast({
         title: "Registration Submitted",
         description: "We've received your registration. We'll get back to you soon!",
       });
       
-      // Reset form
       setFormData({
         firstName: '',
         lastName: '',
