@@ -113,6 +113,7 @@ const RegistrationSection = () => {
 
 <div className="flex justify-center items-center h-screen">
 <h1 className="text-2xl font-bold text-gray-800">Please Fill Out the Form</h1>
+<br />
   <a
     href="https://docs.google.com/forms/d/e/1FAIpQLSf5431GGbfLU0T66aF68YA87YqMfK-F7pErPN6tEjTpqWMnHA/viewform?usp=sharing"
     target="_blank"
