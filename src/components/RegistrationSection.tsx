@@ -109,9 +109,10 @@ const RegistrationSection = () => {
   };
 
   return (
-
-    <a src="https://docs.google.com/forms/d/e/1FAIpQLSf5431GGbfLU0T66aF68YA87YqMfK-F7pErPN6tEjTpqWMnHA/viewform?usp=sharing">click here</a>
-  );
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSf5431GGbfLU0T66aF68YA87YqMfK-F7pErPN6tEjTpqWMnHA/viewform?usp=sharing" target="_blank" rel="noopener noreferrer">
+      Click here
+    </a>
+  );  
 };
 
 export default RegistrationSection;
